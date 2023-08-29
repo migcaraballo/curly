@@ -1,35 +1,31 @@
 package main
 
 import (
-	"errors"
+	"curly/internal/core"
 	"fmt"
-	"github.com/gdamore/tcell/v2"
-	"github.com/rivo/tview"
-	"log"
-	"os/exec"
-	"strings"
 )
 
 var (
-	CURL_PATHS = []string{
-		"/bin/curl",
-		"/usr/bin/curl",
-		"/usr/local/bin/curl",
-	}
-	useableCurlPath string
-	currPage        *tview.Primitive
-
-	/* UI components */
-	app        *tview.Application
-	mainLayout *tview.Grid
-	stage      *tview.Flex
-	//pages       *tview.Pages
-	menu        = tview.NewList()
-	welcomePage *tview.TextView
+//	CURL_PATHS = []string{
+//		"/bin/curl",
+//		"/usr/bin/curl",
+//		"/usr/local/bin/curl",
+//	}
+//
+// useableCurlPath string
+// currPage        *tview.Primitive
+//
+// /* UI components */
+// app         *tview.Application
+// mainLayout  *tview.Grid
+// stage       *tview.Flex
+// menu        = tview.NewList()
+// welcomePage *tview.TextView
+// curlyPage   *page.CurlyPage
 )
 
 func main() {
-	// check for curl
+	////check for curl
 	//fmt.Println("Checking Curl")
 	//curlPath, err := checkCurl()
 	//if err != nil {
@@ -40,29 +36,31 @@ func main() {
 	//	fmt.Println("Found curl:", curlPath)
 	//	useableCurlPath = curlPath
 	//}
-
-	app = tview.NewApplication()
-	//pages = tview.NewPages()
-
-	// create the main UI
-	fmt.Println("Initializing Curly UI...")
-	mainPage := createNewLayout()
-	//pages.AddPage("main", mainPage, false, true)
-
-	//if err := app.SetRoot(pages, true).SetFocus(pages).Run(); err != nil {
-	if err := app.SetRoot(mainPage, true).SetFocus(mainPage).Run(); err != nil {
+	//
+	//app = tview.NewApplication()
+	//
+	//// create the main UI
+	//fmt.Println("Initializing Curly UI...")
+	//mainPage := createNewLayout()
+	//
+	//if err := app.SetRoot(mainPage, true).SetFocus(mainPage).Run(); err != nil {
+	//	panic(err)
+	//}
+	_, err := core.NewApp()
+	if err != nil {
 		panic(err)
 	}
 
 	fmt.Println("exiting curly, thanks for using me.")
 }
 
+/*
 func createNewLayout() *tview.Grid {
 	lo := tview.NewGrid()
 	lo.SetBorders(true)
-	//lo.SetBackgroundColor(tcell.ColorBlack)
-	//lo.SetBordersColor(tcell.ColorDodgerBlue)
-	//lo.SetBorderColor(tcell.ColorDodgerBlue)
+	lo.SetBackgroundColor(tcell.ColorBlack)
+	lo.SetBordersColor(tcell.ColorDodgerBlue)
+	lo.SetBorderColor(tcell.ColorDodgerBlue)
 
 	// 1 row
 	lo.SetRows(0)
@@ -70,18 +68,26 @@ func createNewLayout() *tview.Grid {
 	// left nav | right content
 	lo.SetColumns(26, 0)
 
-	// welcome page
-	welcomePage = tview.NewTextView().SetText("Welcome To Curly!").SetTextAlign(tview.AlignLeft)
-	welcomePage.SetBorder(true)
-	welcomePage.SetTextColor(tcell.ColorWhite)
-	welcomePage.SetBorderColor(tcell.ColorDarkCyan)
-	lo.AddItem(welcomePage, 0, 1, 1, 1, 0, 0, false)
-
 	// add menu
 	menu = createPageMenu()
 	lo.AddItem(menu, 0, 0, 1, 1, 0, 0, true)
 
+	// welcome page
+	welcomePage = tview.NewTextView().SetText("Welcome To Curly!").SetTextAlign(tview.AlignLeft)
+	welcomePage.SetBorder(true)
+	welcomePage.SetTextColor(tcell.ColorWhite)
+	welcomePage.SetBorderColor(tcell.ColorDodgerBlue)
+
+	stage = tview.NewFlex()
+	setStage(welcomePage, false)
+	lo.AddItem(stage, 0, 1, 1, 1, 0, 0, false)
+
 	return lo
+}
+
+func setStage(tp tview.Primitive, focus bool) {
+	stage.Clear()
+	stage.AddItem(tp, 0, 1, focus)
 }
 
 func createPageMenu() *tview.List {
@@ -91,14 +97,19 @@ func createPageMenu() *tview.List {
 	m.SetMainTextColor(tcell.ColorWhite)
 
 	m.AddItem("Curl It!", "", 'c', func() {
-		//stage.Clear()
-		//stage.AddItem(welcomeText, 0, 1, true)
+		if curlyPage == nil {
+			curlyPage = page.NewCurlyPage(app)
+		}
+		setStage(curlyPage.GetPrimitvie(), true)
+		app.SetFocus(curlyPage.GetPrimitvie())
 	})
 
 	m.AddItem("History", "", 'g', func() {
-		//stage.Clear()
-		//initApiGetScreen()
-		//stage.AddItem(apiGetScreen, 0, 1, true)
+		tmpHistPage := tview.NewTextView().SetText("Temp History Page")
+		tmpHistPage.SetBorder(true)
+		tmpHistPage.SetBackgroundColor(tcell.ColorBlack)
+		tmpHistPage.SetBorderColor(tcell.ColorDodgerBlue)
+		setStage(tmpHistPage, false)
 	})
 
 	m.AddItem("Quit", "", 'q', func() {
@@ -146,3 +157,4 @@ func curlIt(args ...string) string {
 
 	return string(stdout)
 }
+*/
