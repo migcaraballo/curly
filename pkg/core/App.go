@@ -1,29 +1,15 @@
 package core
 
 import (
-	"curly/internal/page"
-	"curly/internal/service"
-	"errors"
 	"fmt"
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
-	"log"
-	"os/exec"
 	"strings"
 )
 
-var (
-	CURL_PATHS = []string{
-		"/bin/curl",
-		"/usr/bin/curl",
-		"/usr/local/bin/curl",
-	}
-)
-
 type App struct {
-	useableCurlPath string
-	currPage        *tview.Primitive
-	curlyService    *service.CurlyService
+	currPage     *tview.Primitive
+	curlyService *CurlyService
 
 	/* UI components */
 	tApp        *tview.Application
@@ -31,23 +17,22 @@ type App struct {
 	stage       *tview.Flex
 	menu        *tview.List
 	welcomePage *tview.TextView
-	curlyPage   *page.CurlyPage
+	curlyPage   *CurlyPage
 }
 
 func NewApp() (*App, error) {
 	a := &App{}
-	a.curlyService = service.NewCurlyService()
+	a.curlyService = NewCurlyService()
 
 	//check for curl
 	fmt.Println("Checking Curl")
-	curlPath, err := a.checkCurl()
+	curlPath, err := a.curlyService.CheckCurl()
 	if err != nil {
 		fmt.Println(err)
 		return nil, err
 	} else {
 		// future: need some curl interface for use with factory to toggle between real curl and golang curl
 		fmt.Println("Found curl:", curlPath)
-		a.useableCurlPath = curlPath
 	}
 
 	a.tApp = tview.NewApplication()
@@ -108,7 +93,7 @@ func (a *App) createPageMenu() *tview.List {
 
 	m.AddItem("Curl It!", "", 'c', func() {
 		if a.curlyPage == nil {
-			a.curlyPage = page.NewCurlyPage()
+			a.curlyPage = NewCurlyPage()
 			a.curlyPage.SetFocusHandler(func(p tview.Primitive) {
 				a.tApp.SetFocus(p)
 			})
@@ -117,8 +102,13 @@ func (a *App) createPageMenu() *tview.List {
 				a.tApp.SetFocus(a.menu)
 			})
 
-			a.curlyPage.SetCurlCallHandler(func(creq *page.CurlRequest, result *string) {
-				a.curlyService.AddResult(creq, result)
+			a.curlyPage.SetCurlCallHandler(func(creq *CurlRequest) string {
+				res, err := a.curlyService.ExecuteCurlCall(creq)
+				if err != nil {
+					return err.Error()
+				} else {
+					return res
+				}
 			})
 		}
 
@@ -159,26 +149,4 @@ func (a *App) createPageMenu() *tview.List {
 	})
 
 	return m
-}
-
-func (a *App) checkCurl() (string, error) {
-	for _, c := range CURL_PATHS {
-		if cpath, err := exec.LookPath(c); err == nil {
-			return cpath, nil
-		}
-	}
-
-	return "", errors.New("CURL was not found on this computer")
-}
-
-func (a *App) curlIt(args ...string) string {
-	cmd := exec.Command("curl", "-v", "https://api.dictionaryapi.dev/api/v2/entries/en/test")
-
-	stdout, err := cmd.CombinedOutput()
-	if err != nil {
-		log.Println("ERR:", err)
-		return ""
-	}
-
-	return string(stdout)
 }

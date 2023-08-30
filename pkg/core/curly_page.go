@@ -1,21 +1,12 @@
-package page
+package core
 
 import (
 	"fmt"
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
+	"strings"
 	"time"
 )
-
-type CurlRequest struct {
-	RequestDate time.Time
-	Url         string
-	tlsVer      string
-	method      string
-	headers     string
-	qsParams    string
-	body        string
-}
 
 type CurlyPage struct {
 	mainGrid        *tview.Grid
@@ -23,7 +14,7 @@ type CurlyPage struct {
 	results         *tview.TextView
 	defocusHandler  func()
 	focusHandler    func(t tview.Primitive)
-	curlCallHandler func(curlRequest *CurlRequest, result *string)
+	curlCallHandler func(curlRequest *CurlRequest) string
 }
 
 func NewCurlyPage() *CurlyPage {
@@ -53,6 +44,7 @@ func (cp *CurlyPage) initUI() {
 	cp.form.SetLabelColor(tcell.ColorWhite)
 
 	cp.form.AddInputField("URL", "", 0, nil, nil)
+
 	cp.form.AddDropDown("Method", []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"}, 0, nil)
 	cp.form.AddDropDown("TLS", []string{"1.0", "1.1", "1.2", "1.3"}, 0, nil)
 	cp.form.AddTextArea("Query Params", "", 0, 3, 0, nil)
@@ -66,11 +58,11 @@ func (cp *CurlyPage) initUI() {
 	// Call Button + behavior
 	cp.form.AddButton("Call", func() {
 		creq := cp.GetCurlRequst()
-		cp.results.Clear().SetText(fmt.Sprintf("%+v\n", creq))
-		cp.focusHandler(cp.results)
+		res := cp.curlCallHandler(creq)
 
-		res := cp.results.GetText(false)
-		cp.curlCallHandler(creq, &res)
+		cp.results.Clear().SetText(fmt.Sprintf("%s\n", res))
+		//cp.results.Clear().SetText(fmt.Sprintf("%+v\n", creq.DebugMessage()))
+		cp.focusHandler(cp.results)
 		return
 	})
 
@@ -108,19 +100,33 @@ func (cp *CurlyPage) initUI() {
 func (cp CurlyPage) GetCurlRequst() *CurlRequest {
 	_, tVal := cp.form.GetFormItemByLabel("TLS").(*tview.DropDown).GetCurrentOption()
 	_, mVal := cp.form.GetFormItemByLabel("Method").(*tview.DropDown).GetCurrentOption()
+	hdrs := cp.ParseMultiLine(cp.form.GetFormItemByLabel("Headers").(*tview.TextArea).GetText())
+	qsp := cp.ParseMultiLine(cp.form.GetFormItemByLabel("Query Params").(*tview.TextArea).GetText())
 
-	return &CurlRequest{
-		RequestDate: time.Now(),
-		Url:         cp.form.GetFormItemByLabel("URL").(*tview.InputField).GetText(),
-		tlsVer:      tVal,
-		method:      mVal,
-		headers:     cp.form.GetFormItemByLabel("Headers").(*tview.TextArea).GetText(),
-		qsParams:    cp.form.GetFormItemByLabel("Query Params").(*tview.TextArea).GetText(),
-		body:        cp.form.GetFormItemByLabel("Body").(*tview.TextArea).GetText(),
-	}
+	cr := NewCurlRequest()
+	cr.RequestDate = time.Now()
+	cr.Url = cp.form.GetFormItemByLabel("URL").(*tview.InputField).GetText()
+	cr.TlsVer = tVal
+	cr.Method = mVal
+	cr.Headers = hdrs
+	cr.QsParams = qsp
+	cr.Body = cp.form.GetFormItemByLabel("Body").(*tview.TextArea).GetText()
+
+	return cr
 }
 
-func (cp *CurlyPage) SetCurlCallHandler(f func(creq *CurlRequest, result *string)) {
+func (cp CurlyPage) ParseMultiLine(ml string) []string {
+	ml = strings.TrimSpace(ml)
+
+	sarr := strings.Split(ml, "\n")
+	if len(sarr[0]) == 0 {
+		return nil
+	}
+
+	return sarr
+}
+
+func (cp *CurlyPage) SetCurlCallHandler(f func(creq *CurlRequest) string) {
 	cp.curlCallHandler = f
 }
 

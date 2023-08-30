@@ -1,4 +1,4 @@
-package page
+package core
 
 type HistoryPage struct {
 }
