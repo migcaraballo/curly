@@ -54,7 +54,7 @@ func NewApp() (*App, error) {
 func (a *App) createNewLayout() *tview.Grid {
 	lo := tview.NewGrid()
 	lo.SetBorders(true)
-	lo.SetBackgroundColor(tcell.ColorBlack)
+	lo.SetBackgroundColor(tcell.ColorDeepSkyBlue)
 	lo.SetBordersColor(tcell.ColorDodgerBlue)
 	lo.SetBorderColor(tcell.ColorDodgerBlue)
 
@@ -71,6 +71,7 @@ func (a *App) createNewLayout() *tview.Grid {
 	// welcome page
 	a.welcomePage = tview.NewTextView().SetText(WelcomePageText).SetTextAlign(tview.AlignLeft).SetDynamicColors(true).SetRegions(true)
 	a.welcomePage.SetBorder(true)
+	a.welcomePage.SetBackgroundColor(tcell.ColorDarkSlateGray)
 	a.welcomePage.SetTextColor(tcell.ColorWhite)
 	a.welcomePage.SetBorderColor(tcell.ColorDodgerBlue)
 

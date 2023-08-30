@@ -59,10 +59,14 @@ func (cp *CurlyPage) initUI() {
 
 	// Call Button + behavior
 	cp.form.AddButton("Call", func() {
+		cp.results.Clear() // clear results before others pop-in
 		creq := cp.GetCurlRequst()
 		res := cp.curlCallHandler(creq)
 
 		cp.results.Clear().SetText(fmt.Sprintf("%s\n", res))
+		cp.results.SetScrollable(true)
+		cp.results.ScrollToBeginning()
+
 		//cp.results.Clear().SetText(fmt.Sprintf("%+v\n", creq.DebugMessage()))
 		cp.focusHandler(cp.results)
 		return

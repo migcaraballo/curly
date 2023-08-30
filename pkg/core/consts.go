@@ -26,9 +26,11 @@ const WelcomePageText = `
 -------------------------------
 - Use ARROW keys to scroll through history list
 - Hit Enter to see full details from history item
+	- Hit Control+Z to get back to history list
 
 [goldenrod]Exit App:[white]
 ---------------------------
 - Recommend use menu
 - Can also use Ctrl+C
 `
+const NAV_TEXT = `Navigation: Scrolling = up/down arrows | History List: Control+Z | ESC: Main Menu`

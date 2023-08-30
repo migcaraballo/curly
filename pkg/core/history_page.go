@@ -10,10 +10,12 @@ type HistoryPage struct {
 	historyItems *[]CurlHistoryItem
 
 	/* ui components */
-	historyList    *tview.List
-	Layout         *tview.Grid
-	focusHandler   func(p tview.Primitive)
-	defocusHandler func()
+	pageStage        *tview.Flex
+	historyList      *tview.List
+	Layout           *tview.Grid
+	resultDetailView *tview.TextView
+	focusHandler     func(p tview.Primitive)
+	defocusHandler   func()
 }
 
 func NewHistoryPage(items *[]CurlHistoryItem) *HistoryPage {
@@ -27,19 +29,17 @@ func NewHistoryPage(items *[]CurlHistoryItem) *HistoryPage {
 }
 
 func (hp *HistoryPage) initUI() error {
-	//hp.Layout.SetTitle("| Curl History |")
-	//hp.Layout.SetTitleAlign(tview.AlignLeft)
-	//hp.Layout.SetTitleColor(tcell.ColorYellow)
 	hp.Layout.SetBorders(true)
 	hp.Layout.SetBordersColor(tcell.ColorDodgerBlue)
-	hp.Layout.SetRows(0)
+	hp.Layout.SetRows(0, 1)
 	hp.Layout.SetColumns(0)
 
-	for i, v := range *hp.historyItems {
-		hp.historyList.AddItem(
-			fmt.Sprintf("%s - %s", v.GetFormattedDate(), v.Request.Url),
-			fmt.Sprintf("%s - %s", v.Request.Method, v.Request.TlsVer),
-			rune(i+1), nil)
+	for _, v := range *hp.historyItems {
+		hp.historyList.AddItem(hp.FormatLineItem(&v), "", 0, func() {
+			tl := *hp.historyItems
+			hi := tl[hp.historyList.GetCurrentItem()]
+			hp.showHistoryItemDetails(&hi)
+		})
 	}
 
 	hp.historyList.SetTitle("| Curl History |")
@@ -47,12 +47,16 @@ func (hp *HistoryPage) initUI() error {
 	hp.historyList.SetTitleAlign(tview.AlignLeft)
 	hp.historyList.SetBorder(true)
 	hp.historyList.SetBorderColor(tcell.ColorDodgerBlue)
-
 	hp.historyList.SetHighlightFullLine(true)
 	hp.historyList.SetSelectedTextColor(tcell.ColorBlack)
 	hp.historyList.SetSelectedBackgroundColor(tcell.ColorYellow)
 
-	hp.Layout.AddItem(hp.historyList, 0, 0, 1, 1, 0, 0, true)
+	/* page stage */
+	hp.pageStage = tview.NewFlex()
+	hp.pageStage.AddItem(hp.historyList, 0, 1, false)
+
+	hp.Layout.AddItem(hp.pageStage, 0, 0, 1, 1, 0, 0, true)
+	hp.Layout.AddItem(tview.NewTextView().SetText(NAV_TEXT).SetTextAlign(tview.AlignLeft), 1, 0, 1, 1, 0, 0, false)
 
 	// setup esc capture
 	hp.Layout.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
@@ -64,6 +68,35 @@ func (hp *HistoryPage) initUI() error {
 	})
 
 	return nil
+}
+
+func (h *HistoryPage) FormatLineItem(c *CurlHistoryItem) string {
+	return fmt.Sprintf("%s [m: %s] [t: %s] %s", c.GetFormattedDate(), c.Request.Method, c.Request.TlsVer, c.Request.Url)
+}
+
+func (h *HistoryPage) showHistoryItemDetails(hi *CurlHistoryItem) {
+	d := tview.NewTextView()
+	//d.SetBorder(true)
+	d.SetDynamicColors(true)
+	d.SetRegions(true)
+	d.SetText(*hi.CurlResult)
+
+	d.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
+		if event.Key() == tcell.KeyCtrlZ {
+			h.switchStage(h.historyList)
+			return nil
+		}
+
+		return event
+	})
+
+	h.switchStage(d)
+}
+
+func (h *HistoryPage) switchStage(p tview.Primitive) {
+	h.pageStage.Clear()
+	h.pageStage.AddItem(p, 0, 1, false)
+	h.focusHandler(p)
 }
 
 func (h *HistoryPage) SetFocusHandler(f func(p tview.Primitive)) {
