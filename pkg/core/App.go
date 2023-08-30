@@ -69,7 +69,7 @@ func (a *App) createNewLayout() *tview.Grid {
 	lo.AddItem(a.menu, 0, 0, 1, 1, 0, 0, true)
 
 	// welcome page
-	a.welcomePage = tview.NewTextView().SetText("Welcome To Curly!").SetTextAlign(tview.AlignLeft)
+	a.welcomePage = tview.NewTextView().SetText(WelcomePageText).SetTextAlign(tview.AlignLeft).SetDynamicColors(true).SetRegions(true)
 	a.welcomePage.SetBorder(true)
 	a.welcomePage.SetTextColor(tcell.ColorWhite)
 	a.welcomePage.SetBorderColor(tcell.ColorDodgerBlue)
