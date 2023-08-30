@@ -2,6 +2,7 @@ package core
 
 import (
 	"curly/internal/page"
+	"curly/internal/service"
 	"errors"
 	"fmt"
 	"github.com/gdamore/tcell/v2"
@@ -22,6 +23,7 @@ var (
 type App struct {
 	useableCurlPath string
 	currPage        *tview.Primitive
+	curlyService    *service.CurlyService
 
 	/* UI components */
 	tApp        *tview.Application
@@ -34,6 +36,7 @@ type App struct {
 
 func NewApp() (*App, error) {
 	a := &App{}
+	a.curlyService = service.NewCurlyService()
 
 	//check for curl
 	fmt.Println("Checking Curl")
@@ -106,14 +109,21 @@ func (a *App) createPageMenu() *tview.List {
 	m.AddItem("Curl It!", "", 'c', func() {
 		if a.curlyPage == nil {
 			a.curlyPage = page.NewCurlyPage()
-			//a.curlyPage.SetDefocusItem(a.menu)
+			a.curlyPage.SetFocusHandler(func(p tview.Primitive) {
+				a.tApp.SetFocus(p)
+			})
+
 			a.curlyPage.SetDeFocusHandler(func() {
 				a.tApp.SetFocus(a.menu)
 			})
+
+			a.curlyPage.SetCurlCallHandler(func(creq *page.CurlRequest, result *string) {
+				a.curlyService.AddResult(creq, result)
+			})
 		}
 
-		a.setStage(a.curlyPage.GetPrimitvie(), true)
-		a.tApp.SetFocus(a.curlyPage.GetPrimitvie())
+		a.setStage(a.curlyPage.GetMainPage(), false)
+		a.tApp.SetFocus(a.curlyPage.GetItemForFocus())
 	})
 
 	m.AddItem("History", "", 'g', func() {
@@ -121,6 +131,9 @@ func (a *App) createPageMenu() *tview.List {
 		tmpHistPage.SetBorder(true)
 		tmpHistPage.SetBackgroundColor(tcell.ColorBlack)
 		tmpHistPage.SetBorderColor(tcell.ColorDodgerBlue)
+
+		tmpHistPage.SetText(a.curlyService.GetCurlHistoryString())
+
 		a.setStage(tmpHistPage, false)
 	})
 

@@ -100,8 +100,8 @@ func createPageMenu() *tview.List {
 		if curlyPage == nil {
 			curlyPage = page.NewCurlyPage(app)
 		}
-		setStage(curlyPage.GetPrimitvie(), true)
-		app.SetFocus(curlyPage.GetPrimitvie())
+		setStage(curlyPage.GetMainPage(), true)
+		app.SetFocus(curlyPage.GetMainPage())
 	})
 
 	m.AddItem("History", "", 'g', func() {
