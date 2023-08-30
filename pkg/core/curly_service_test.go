@@ -10,6 +10,8 @@ func TestCurlyService_curlIt(t *testing.T) {
 	cs.CheckCurl()
 
 	creq := NewCurlRequest()
+	creq.TlsVer = "1.2"
+	creq.Method = "GET"
 	creq.Url = "https://api.dictionaryapi.dev/api/v2/entries/en/test"
 
 	res, err := cs.ExecuteCurlCall(creq)

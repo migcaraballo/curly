@@ -46,10 +46,12 @@ func (cp *CurlyPage) initUI() {
 	cp.form.AddInputField("URL", "", 0, nil, nil)
 
 	cp.form.AddDropDown("Method", []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"}, 0, nil)
-	cp.form.AddDropDown("TLS", []string{"1.0", "1.1", "1.2", "1.3"}, 0, nil)
+	cp.form.AddDropDown("TLS", []string{"1.0", "1.1", "1.2", "1.3", "1.4"}, 0, nil)
 	cp.form.AddTextArea("Query Params", "", 0, 3, 0, nil)
 	cp.form.AddTextArea("Headers", "", 0, 3, 0, nil)
 	cp.form.AddTextArea("Body", "", 0, 5, 0, nil)
+
+	cp.ResetForm()
 
 	// buttons
 	cp.form.SetButtonBackgroundColor(tcell.ColorDodgerBlue)
@@ -67,7 +69,9 @@ func (cp *CurlyPage) initUI() {
 	})
 
 	// clear button + behavior
-	cp.form.AddButton("Clear", nil)
+	cp.form.AddButton("Clear", func() {
+		cp.ResetForm()
+	})
 
 	cp.form.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 		if event.Key() == tcell.KeyEsc {
@@ -124,6 +128,17 @@ func (cp CurlyPage) ParseMultiLine(ml string) []string {
 	}
 
 	return sarr
+}
+
+func (cp *CurlyPage) ResetForm() {
+	cp.form.GetFormItemByLabel("TLS").(*tview.DropDown).SetCurrentOption(0)
+	cp.form.GetFormItemByLabel("Method").(*tview.DropDown).SetCurrentOption(0)
+	cp.form.GetFormItemByLabel("Headers").(*tview.TextArea).SetText("", true).SetPlaceholder("key:value\nkey:value").
+		SetPlaceholderStyle(tcell.StyleDefault)
+	cp.form.GetFormItemByLabel("Query Params").(*tview.TextArea).SetText("", true).SetPlaceholder("key=value\nkey=value").
+		SetPlaceholderStyle(tcell.StyleDefault)
+	cp.form.GetFormItemByLabel("URL").(*tview.InputField).SetText("")
+	cp.form.GetFormItemByLabel("Body").(*tview.TextArea).SetText("", true)
 }
 
 func (cp *CurlyPage) SetCurlCallHandler(f func(creq *CurlRequest) string) {

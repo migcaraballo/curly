@@ -6,6 +6,11 @@ import (
 	"time"
 )
 
+/*
+curl -vvv -L -H 'Content-Type: application/json' -H 'Accept: application/json' 'http://api01.viewpointcloud.com/v2/mentoroh/bluebeam_session/830-353-339/notification?community=mentoroh&userID=auth0%257C601c83c25a90f50071b98909' -d '{}'
+--tlsv1.2 --tls-max 1.2
+*/
+
 type CurlRequest struct {
 	RequestDate time.Time
 	Url         string
@@ -25,6 +30,26 @@ func NewCurlRequest() *CurlRequest {
 		Headers:     []string{},
 		QsParams:    []string{},
 		Body:        "",
+	}
+}
+
+func (cr CurlRequest) GetMethodString() string {
+	return fmt.Sprintf("-X %s", cr.Method)
+}
+
+func (cr CurlRequest) GetMethodArgs() []string {
+	return []string{"-X", cr.Method}
+}
+
+func (cr CurlRequest) GetTlsString() string {
+	return fmt.Sprintf("--tlsv%s --tls-max %s", cr.TlsVer, cr.TlsVer)
+}
+
+func (cr CurlRequest) GetTlsArgs() []string {
+	return []string{
+		fmt.Sprintf("--tlsv%s", cr.TlsVer),
+		"--tls-max",
+		cr.TlsVer,
 	}
 }
 

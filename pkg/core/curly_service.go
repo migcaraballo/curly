@@ -68,6 +68,11 @@ func (cs *CurlyService) CheckCurl() (string, error) {
 func (cs CurlyService) curlIt(cr *CurlRequest) (string, error) {
 	vArgs := []string{}
 	vArgs = append(vArgs, "-v")
+	//vArgs = append(vArgs, cr.GetTlsString())
+	vArgs = append(vArgs, cr.GetTlsArgs()...)
+	vArgs = append(vArgs, cr.GetMethodArgs()...)
+	//vArgs = append(vArgs, cr.GetMethodString())
+
 	vArgs = append(vArgs, cr.Url)
 
 	if len(cr.Headers) > 0 {
@@ -81,14 +86,10 @@ func (cs CurlyService) curlIt(cr *CurlRequest) (string, error) {
 	}
 
 	cmd := exec.Command(cs.useableCurlPath, vArgs...)
+	res := cmd.String() + "\n\n"
 
 	stdout, err := cmd.CombinedOutput()
-	if err != nil {
-		return "", err
-	}
-
-	res := string(stdout)
+	res += string(stdout)
 	cs.AddResult(cr, &res)
-
-	return res, nil
+	return res, err
 }

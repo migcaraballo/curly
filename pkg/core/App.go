@@ -103,12 +103,13 @@ func (a *App) createPageMenu() *tview.List {
 			})
 
 			a.curlyPage.SetCurlCallHandler(func(creq *CurlRequest) string {
-				res, err := a.curlyService.ExecuteCurlCall(creq)
-				if err != nil {
-					return err.Error()
-				} else {
-					return res
-				}
+				res, _ := a.curlyService.ExecuteCurlCall(creq)
+				return res
+				//if err != nil {
+				//	return err.Error()
+				//} else {
+				//	return res
+				//}
 			})
 		}
 
