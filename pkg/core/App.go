@@ -18,6 +18,7 @@ type App struct {
 	menu        *tview.List
 	welcomePage *tview.TextView
 	curlyPage   *CurlyPage
+	HistoryPage *HistoryPage
 }
 
 func NewApp() (*App, error) {
@@ -31,7 +32,7 @@ func NewApp() (*App, error) {
 		fmt.Println(err)
 		return nil, err
 	} else {
-		// future: need some curl interface for use with factory to toggle between real curl and golang curl
+		// todo: need some curl interface for use with factory to toggle between real curl and golang curl
 		fmt.Println("Found curl:", curlPath)
 	}
 
@@ -39,9 +40,9 @@ func NewApp() (*App, error) {
 
 	// create the main UI
 	fmt.Println("Initializing Curly UI...")
-	mainPage := a.createNewLayout()
+	a.mainLayout = a.createNewLayout()
 
-	if err := a.tApp.SetRoot(mainPage, true).SetFocus(mainPage).Run(); err != nil {
+	if err := a.tApp.SetRoot(a.mainLayout, true).SetFocus(a.mainLayout).Run(); err != nil {
 		panic(err)
 	}
 
@@ -105,11 +106,6 @@ func (a *App) createPageMenu() *tview.List {
 			a.curlyPage.SetCurlCallHandler(func(creq *CurlRequest) string {
 				res, _ := a.curlyService.ExecuteCurlCall(creq)
 				return res
-				//if err != nil {
-				//	return err.Error()
-				//} else {
-				//	return res
-				//}
 			})
 		}
 
@@ -118,14 +114,16 @@ func (a *App) createPageMenu() *tview.List {
 	})
 
 	m.AddItem("History", "", 'g', func() {
-		tmpHistPage := tview.NewTextView().SetText("Temp History Page")
-		tmpHistPage.SetBorder(true)
-		tmpHistPage.SetBackgroundColor(tcell.ColorBlack)
-		tmpHistPage.SetBorderColor(tcell.ColorDodgerBlue)
+		a.HistoryPage = NewHistoryPage(a.curlyService.historyQueue)
+		a.HistoryPage.SetFocusHandler(func(p tview.Primitive) {
+			a.tApp.SetFocus(p)
+		})
+		a.HistoryPage.SetDefocusHandler(func() {
+			a.tApp.SetFocus(m)
+		})
 
-		tmpHistPage.SetText(a.curlyService.GetCurlHistoryString())
-
-		a.setStage(tmpHistPage, false)
+		a.setStage(a.HistoryPage.Layout, true)
+		a.tApp.SetFocus(a.HistoryPage.GetLoadFocusItem())
 	})
 
 	m.AddItem("Quit", "", 'q', func() {
@@ -136,14 +134,10 @@ func (a *App) createPageMenu() *tview.List {
 		ed.SetDoneFunc(func(bidx int, blbl string) {
 			if strings.EqualFold("yes", blbl) {
 				a.tApp.Stop()
+			} else {
+				a.tApp.SetRoot(a.mainLayout, true)
+				a.tApp.SetFocus(m)
 			}
-
-			// how to get back to previous page? use 'currPage' VAR
-
-			//else {
-			//	app.SetRoot(grd, true)
-			//	app.SetFocus(m)
-			//}
 		})
 
 		a.tApp.SetRoot(ed, false).SetFocus(ed)

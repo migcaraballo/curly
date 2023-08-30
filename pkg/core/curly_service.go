@@ -16,11 +16,6 @@ var (
 	}
 )
 
-type CurlHistoryItem struct {
-	Request    *CurlRequest
-	CurlResult *string
-}
-
 type CurlyService struct {
 	historyQueue    *[]CurlHistoryItem
 	useableCurlPath string
@@ -33,7 +28,8 @@ func NewCurlyService() *CurlyService {
 }
 
 func (cs *CurlyService) AddResult(creq *CurlRequest, result *string) {
-	*cs.historyQueue = append(*cs.historyQueue, CurlHistoryItem{creq, result})
+	// prepend behavior
+	*cs.historyQueue = append([]CurlHistoryItem{CurlHistoryItem{creq, result}}, *cs.historyQueue...)
 }
 
 func (cs *CurlyService) GetCurlHistory() *[]CurlHistoryItem {
@@ -64,7 +60,6 @@ func (cs *CurlyService) CheckCurl() (string, error) {
 	return "", errors.New("CURL was not found on this computer")
 }
 
-// https://api.dictionaryapi.dev/api/v2/entries/en/test
 func (cs CurlyService) curlIt(cr *CurlRequest) (string, error) {
 	vArgs := []string{}
 	vArgs = append(vArgs, "-v")

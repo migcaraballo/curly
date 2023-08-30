@@ -94,7 +94,7 @@ func (cp *CurlyPage) initUI() {
 		return event
 	})
 
-	// setup grid layout
+	// setup grid Layout
 	cp.mainGrid.SetRows(25, 0)
 	cp.mainGrid.SetColumns(0)
 	cp.mainGrid.AddItem(cp.form, 0, 0, 1, 1, 0, 0, false)
