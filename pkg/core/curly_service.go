@@ -63,10 +63,8 @@ func (cs *CurlyService) CheckCurl() (string, error) {
 func (cs CurlyService) curlIt(cr *CurlRequest) (string, error) {
 	vArgs := []string{}
 	vArgs = append(vArgs, "-v")
-	//vArgs = append(vArgs, cr.GetTlsString())
 	vArgs = append(vArgs, cr.GetTlsArgs()...)
 	vArgs = append(vArgs, cr.GetMethodArgs()...)
-	//vArgs = append(vArgs, cr.GetMethodString())
 
 	vArgs = append(vArgs, cr.Url)
 
