@@ -71,7 +71,7 @@ func (a *App) createNewLayout() *tview.Grid {
 	// welcome page
 	a.welcomePage = tview.NewTextView().SetText(WelcomePageText).SetTextAlign(tview.AlignLeft).SetDynamicColors(true).SetRegions(true)
 	a.welcomePage.SetBorder(true)
-	a.welcomePage.SetBackgroundColor(tcell.ColorDarkSlateGray)
+	a.welcomePage.SetBackgroundColor(tcell.ColorBlack)
 	a.welcomePage.SetTextColor(tcell.ColorWhite)
 	a.welcomePage.SetBorderColor(tcell.ColorDodgerBlue)
 
