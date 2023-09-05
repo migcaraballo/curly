@@ -58,6 +58,16 @@ func (a *App) createNewLayout() *tview.Grid {
 	lo.SetBordersColor(tcell.ColorDodgerBlue)
 	lo.SetBorderColor(tcell.ColorDodgerBlue)
 
+	lo.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
+		if event.Key() == tcell.KeyCtrlH {
+			a.stage.Clear()
+			a.stage.AddItem(a.welcomePage, 0, 1, false)
+			a.tApp.SetFocus(a.welcomePage)
+		}
+
+		return event
+	})
+
 	// 1 row
 	lo.SetRows(0)
 
@@ -74,6 +84,13 @@ func (a *App) createNewLayout() *tview.Grid {
 	a.welcomePage.SetBackgroundColor(tcell.ColorBlack)
 	a.welcomePage.SetTextColor(tcell.ColorWhite)
 	a.welcomePage.SetBorderColor(tcell.ColorDodgerBlue)
+	a.welcomePage.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
+		if event.Key() == tcell.KeyEsc {
+			a.tApp.SetFocus(a.menu)
+		}
+
+		return event
+	})
 
 	a.stage = tview.NewFlex()
 	a.setStage(a.welcomePage, false)

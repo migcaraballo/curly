@@ -32,5 +32,8 @@ const WelcomePageText = `
 ---------------------------
 - Recommend use menu
 - Can also use Ctrl+C
+
+
+[red]Return to this page anytime with: Control+H[white]
 `
 const NAV_TEXT = `Navigation: Scrolling = up/down arrows | History List: Control+Z | ESC: Main Menu`
