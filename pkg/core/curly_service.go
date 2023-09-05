@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"os/exec"
+	"strings"
 	"time"
 )
 
@@ -19,12 +20,28 @@ var (
 type CurlyService struct {
 	historyQueue    *[]CurlHistoryItem
 	useableCurlPath string
+	curlClient      Curler
 }
 
 func NewCurlyService() *CurlyService {
-	return &CurlyService{
+	cs := &CurlyService{
 		historyQueue: &[]CurlHistoryItem{},
 	}
+
+	//check for curl
+	fmt.Println("Checking Curl")
+	curlPath, err := cs.checkCurl()
+
+	if err != nil {
+		fmt.Printf("Curl was not found, using Curly client: %v\n", err)
+		cs.SetCurlClient(false)
+	} else {
+		fmt.Println("Found curl:", curlPath)
+		cs.useableCurlPath = curlPath
+		cs.SetCurlClient(true)
+	}
+
+	return cs
 }
 
 func (cs *CurlyService) AddResult(creq *CurlRequest, result *string) {
@@ -45,44 +62,28 @@ func (cs CurlyService) GetCurlHistoryString() string {
 	return b.String()
 }
 
-func (cs CurlyService) ExecuteCurlCall(creq *CurlRequest) (string, error) {
-	return cs.curlIt(creq)
+func (cs *CurlyService) ExecuteCurlCall(creq *CurlRequest) (string, error) {
+	res, err := cs.curlClient.CurlCall(creq)
+	res = strings.TrimSpace(res)
+	res += "\n\n<<< EOF >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
+	cs.AddResult(creq, &res)
+	return res, err
 }
 
-func (cs *CurlyService) CheckCurl() (string, error) {
+func (cs *CurlyService) SetCurlClient(native bool) {
+	if native {
+		cs.curlClient = NewNativeCurlClient(cs.useableCurlPath)
+	} else {
+		cs.curlClient = NewGoCurlClient()
+	}
+}
+
+func (cs *CurlyService) checkCurl() (string, error) {
 	for _, c := range CURL_PATHS {
 		if cpath, err := exec.LookPath(c); err == nil {
-			cs.useableCurlPath = cpath
 			return cpath, nil
 		}
 	}
 
 	return "", errors.New("CURL was not found on this computer")
-}
-
-func (cs CurlyService) curlIt(cr *CurlRequest) (string, error) {
-	vArgs := []string{}
-	vArgs = append(vArgs, "-v")
-	vArgs = append(vArgs, cr.GetTlsArgs()...)
-	vArgs = append(vArgs, cr.GetMethodArgs()...)
-
-	vArgs = append(vArgs, cr.Url)
-
-	if len(cr.Headers) > 0 {
-		vArgs = append(vArgs, cr.GetHeadersString())
-	}
-	if len(cr.QsParams) > 0 {
-		vArgs = append(vArgs, cr.GetQsParamString())
-	}
-	if len(cr.Body) > 0 {
-		vArgs = append(vArgs, cr.GetBodyString())
-	}
-
-	cmd := exec.Command(cs.useableCurlPath, vArgs...)
-	res := cmd.String() + "\n\n"
-
-	stdout, err := cmd.CombinedOutput()
-	res += string(stdout)
-	cs.AddResult(cr, &res)
-	return res, err
 }

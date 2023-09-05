@@ -36,4 +36,4 @@ const WelcomePageText = `
 
 [red]Return to this page anytime with: Control+H[white]
 `
-const NAV_TEXT = `Navigation: Scrolling = up/down arrows | History List: Control+Z | ESC: Main Menu`
+const NAV_TEXT = `Navigation: Scrolling = up/down arrows | History List: Backspace | ESC: Main Menu`

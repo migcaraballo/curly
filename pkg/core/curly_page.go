@@ -67,7 +67,6 @@ func (cp *CurlyPage) initUI() {
 		cp.results.SetScrollable(true)
 		cp.results.ScrollToBeginning()
 
-		//cp.results.Clear().SetText(fmt.Sprintf("%+v\n", creq.DebugMessage()))
 		cp.focusHandler(cp.results)
 		return
 	})

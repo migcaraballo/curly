@@ -2,7 +2,9 @@ package core
 
 import (
 	"bytes"
+	"crypto/tls"
 	"fmt"
+	"strings"
 	"time"
 )
 
@@ -53,6 +55,21 @@ func (cr CurlRequest) GetTlsArgs() []string {
 	}
 }
 
+func (cr CurlRequest) GetTlsUint() uint16 {
+	switch cr.TlsVer {
+	case "1.0":
+		return tls.VersionTLS10
+	case "1.1":
+		return tls.VersionTLS11
+	case "1.2":
+		return tls.VersionTLS12
+	case "1.3":
+		return tls.VersionTLS11
+	default:
+		return tls.VersionTLS12
+	}
+}
+
 func (cr CurlRequest) GetBodyString() string {
 	if len(cr.Url) > 0 {
 		return fmt.Sprintf("-d %s", cr.Body)
@@ -83,6 +100,28 @@ func (cr CurlRequest) GetQsParamString() string {
 	}
 
 	return b.String()
+}
+
+func (cr CurlRequest) GetHeadersMap() map[string]string {
+	rm := map[string]string{}
+
+	for _, v := range cr.Headers {
+		ss := strings.Split(v, ":")
+		rm[ss[0]] = ss[1]
+	}
+
+	return rm
+}
+
+func (cr CurlRequest) GetQueryStringMap() map[string]string {
+	rm := map[string]string{}
+
+	for _, v := range cr.QsParams {
+		ss := strings.Split(v, "=")
+		rm[ss[0]] = ss[1]
+	}
+
+	return rm
 }
 
 func (cr CurlRequest) DebugMessage() string {

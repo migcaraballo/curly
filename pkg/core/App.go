@@ -24,18 +24,6 @@ type App struct {
 func NewApp() (*App, error) {
 	a := &App{}
 	a.curlyService = NewCurlyService()
-
-	//check for curl
-	fmt.Println("Checking Curl")
-	curlPath, err := a.curlyService.CheckCurl()
-	if err != nil {
-		fmt.Println(err)
-		return nil, err
-	} else {
-		// todo: need some curl interface for use with factory to toggle between real curl and golang curl
-		fmt.Println("Found curl:", curlPath)
-	}
-
 	a.tApp = tview.NewApplication()
 
 	// create the main UI
@@ -79,7 +67,10 @@ func (a *App) createNewLayout() *tview.Grid {
 	lo.AddItem(a.menu, 0, 0, 1, 1, 0, 0, true)
 
 	// welcome page
-	a.welcomePage = tview.NewTextView().SetText(WelcomePageText).SetTextAlign(tview.AlignLeft).SetDynamicColors(true).SetRegions(true)
+	// display curl type
+	ctypeText := fmt.Sprintf("Curl Type: %s\n\n", a.curlyService.curlClient.CurlType())
+
+	a.welcomePage = tview.NewTextView().SetText(WelcomePageText + ctypeText).SetTextAlign(tview.AlignLeft).SetDynamicColors(true).SetRegions(true)
 	a.welcomePage.SetBorder(true)
 	a.welcomePage.SetBackgroundColor(tcell.ColorBlack)
 	a.welcomePage.SetTextColor(tcell.ColorWhite)
@@ -131,7 +122,7 @@ func (a *App) createPageMenu() *tview.List {
 		a.tApp.SetFocus(a.curlyPage.GetItemForFocus())
 	})
 
-	m.AddItem("History", "", 'g', func() {
+	m.AddItem("History", "", 'h', func() {
 		a.HistoryPage = NewHistoryPage(a.curlyService.historyQueue)
 		a.HistoryPage.SetFocusHandler(func(p tview.Primitive) {
 			a.tApp.SetFocus(p)

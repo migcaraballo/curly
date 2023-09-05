@@ -7,7 +7,6 @@ import (
 
 func TestCurlyService_curlIt(t *testing.T) {
 	cs := NewCurlyService()
-	cs.CheckCurl()
 
 	creq := NewCurlRequest()
 	creq.TlsVer = "1.2"

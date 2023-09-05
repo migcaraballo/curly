@@ -76,13 +76,13 @@ func (h *HistoryPage) FormatLineItem(c *CurlHistoryItem) string {
 
 func (h *HistoryPage) showHistoryItemDetails(hi *CurlHistoryItem) {
 	d := tview.NewTextView()
-	//d.SetBorder(true)
-	d.SetDynamicColors(true)
-	d.SetRegions(true)
+	d.SetScrollable(true)
+	d.SetWrap(true)
+	d.SetWordWrap(true)
 	d.SetText(*hi.CurlResult)
 
 	d.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
-		if event.Key() == tcell.KeyCtrlZ {
+		if event.Key() == tcell.KeyBackspace || event.Key() == tcell.KeyBackspace2 {
 			h.switchStage(h.historyList)
 			return nil
 		}
