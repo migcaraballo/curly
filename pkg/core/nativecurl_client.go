@@ -21,10 +21,10 @@ func (nc NativeCurlClient) CurlCall(cr *CurlRequest) (string, error) {
 	vArgs = append(vArgs, cr.Url)
 
 	if len(cr.Headers) > 0 {
-		vArgs = append(vArgs, cr.GetHeadersString())
+		vArgs = append(vArgs, cr.GetHeadersList()...)
 	}
 	if len(cr.QsParams) > 0 {
-		vArgs = append(vArgs, cr.GetQsParamString())
+		vArgs = append(vArgs, cr.GetQaParamList()...)
 	}
 	if len(cr.Body) > 0 {
 		vArgs = append(vArgs, cr.GetBodyString())

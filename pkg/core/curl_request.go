@@ -8,11 +8,6 @@ import (
 	"time"
 )
 
-/*
-curl -vvv -L -H 'Content-Type: application/json' -H 'Accept: application/json' 'http://api01.viewpointcloud.com/v2/mentoroh/bluebeam_session/830-353-339/notification?community=mentoroh&userID=auth0%257C601c83c25a90f50071b98909' -d '{}'
---tlsv1.2 --tls-max 1.2
-*/
-
 type CurlRequest struct {
 	RequestDate time.Time
 	Url         string
@@ -72,7 +67,7 @@ func (cr CurlRequest) GetTlsUint() uint16 {
 
 func (cr CurlRequest) GetBodyString() string {
 	if len(cr.Url) > 0 {
-		return fmt.Sprintf("-d %s", cr.Body)
+		return fmt.Sprintf("-d '%s'", cr.Body)
 	}
 
 	return ""
@@ -83,7 +78,7 @@ func (cr CurlRequest) GetHeadersString() string {
 
 	if len(cr.Headers) > 0 {
 		for _, v := range cr.Headers {
-			b.WriteString(fmt.Sprintf("-H \"%s\" ", v))
+			b.WriteString(fmt.Sprintf("-H '%s'  ", v))
 		}
 	}
 
@@ -95,11 +90,24 @@ func (cr CurlRequest) GetQsParamString() string {
 
 	if len(cr.QsParams) > 0 {
 		for _, v := range cr.QsParams {
-			b.WriteString(fmt.Sprintf("--data-urlencode \"%s\" ", v))
+			b.WriteString(fmt.Sprintf("--data-urlencode %s ", v))
 		}
 	}
 
 	return b.String()
+}
+
+func (cr CurlRequest) GetQaParamList() []string {
+	qa := []string{}
+
+	if len(cr.QsParams) > 0 {
+		for _, v := range cr.QsParams {
+			qa = append(qa, "--data-urlencode")
+			qa = append(qa, fmt.Sprintf("'%s'", v))
+		}
+	}
+
+	return qa
 }
 
 func (cr CurlRequest) GetHeadersMap() map[string]string {
@@ -111,6 +119,19 @@ func (cr CurlRequest) GetHeadersMap() map[string]string {
 	}
 
 	return rm
+}
+
+func (cr CurlRequest) GetHeadersList() []string {
+	ha := []string{}
+
+	if len(cr.Headers) > 0 {
+		for _, v := range cr.Headers {
+			ha = append(ha, "-H ")
+			ha = append(ha, fmt.Sprintf("'%s'", v))
+		}
+	}
+
+	return ha
 }
 
 func (cr CurlRequest) GetQueryStringMap() map[string]string {

@@ -71,7 +71,7 @@ func (hp *HistoryPage) initUI() error {
 }
 
 func (h *HistoryPage) FormatLineItem(c *CurlHistoryItem) string {
-	return fmt.Sprintf("%s [m: %s] [t: %s] %s", c.GetFormattedDate(), c.Request.Method, c.Request.TlsVer, c.Request.Url)
+	return fmt.Sprintf("[%s] [m: %s] [t: %s] %s", c.GetFormattedDate(), c.Request.Method, c.Request.TlsVer, c.Request.Url)
 }
 
 func (h *HistoryPage) showHistoryItemDetails(hi *CurlHistoryItem) {

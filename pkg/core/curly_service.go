@@ -11,9 +11,11 @@ import (
 
 var (
 	CURL_PATHS = []string{
-		"/bin/curl",
-		"/usr/bin/curl",
-		"/usr/local/bin/curl",
+		"/d		" +
+			"" +
+			"/bin/curl",
+		"/d/usr/bin/curl",
+		"/d/usr/local/bin/curl",
 	}
 )
 

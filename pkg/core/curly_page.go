@@ -47,11 +47,9 @@ func (cp *CurlyPage) initUI() {
 
 	cp.form.AddDropDown("Method", []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"}, 0, nil)
 	cp.form.AddDropDown("TLS", []string{"1.0", "1.1", "1.2", "1.3", "1.4"}, 0, nil)
-	cp.form.AddTextArea("Query Params", "", 0, 3, 0, nil)
 	cp.form.AddTextArea("Headers", "", 0, 3, 0, nil)
+	cp.form.AddTextArea("Query Params", "", 0, 3, 0, nil)
 	cp.form.AddTextArea("Body", "", 0, 5, 0, nil)
-
-	cp.ResetForm()
 
 	// buttons
 	cp.form.SetButtonBackgroundColor(tcell.ColorDodgerBlue)
@@ -102,6 +100,9 @@ func (cp *CurlyPage) initUI() {
 	cp.mainGrid.SetColumns(0)
 	cp.mainGrid.AddItem(cp.form, 0, 0, 1, 1, 0, 0, false)
 	cp.mainGrid.AddItem(cp.results, 1, 0, 1, 1, 0, 0, false)
+
+	// reset
+	cp.ResetForm()
 }
 
 func (cp CurlyPage) GetCurlRequst() *CurlRequest {
