@@ -1,5 +1,5 @@
 # curly
-Simple/Easy Terminal App that leverages native curl command. Offers easy input, and saves results to a history list cache. 
+A simple/easy Terminal App UI (TUI), built with the [tview](https://github.com/rivo/tview) library, that leverages native curl command. Offers easy input, and saves results to a history list cache. 
 
 ### Download
 you can always clone this repo and build the app yourself, however, if you want to just run the app, check the **'dist'** directory for a pre-built binary.
