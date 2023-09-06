@@ -19,3 +19,7 @@
 
 # Go workspace file
 go.work
+.idea/
+curly.iml
+*.zip
+.DS_Store

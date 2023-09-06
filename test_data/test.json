@@ -1,0 +1,10 @@
+{
+  "name": "cosmo",
+  "age": 10,
+  "male": true,
+  "likes": [
+    "pets",
+    "toys",
+    "treats"
+  ]
+}
